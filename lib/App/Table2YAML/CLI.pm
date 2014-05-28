@@ -6,7 +6,7 @@ use English qw[-no_match_vars];
 use Moo;
 use App::Table2YAML;
 
-our $VERSION = '0.001'; # VERSION
+our $VERSION = '0.002'; # VERSION
 
 has opts    => ( is => q(rw), default => sub { {}; }, );
 has errors  => ( is => q(rw), default => sub { []; }, );
@@ -34,7 +34,8 @@ sub _get_loaders {
         local $EVAL_ERROR;
         eval { $obj->$method() };
         my $status
-            = !( $EVAL_ERROR ~~ [ undef, q() ] )
+            = defined $EVAL_ERROR
+            && $EVAL_ERROR ne q()
             && index( $EVAL_ERROR, q(Unimplemented) ) + 1
             ? 0
             : 1;
@@ -54,11 +55,11 @@ sub parse_opts {
             if ( keys %opt ) {
                 my $msg = qq('--$_' is incompatible with any other option);
                 push @{ $self->errors() }, $msg;
-				return 0;
+                return 0;
             }
             else {
                 $self->opts->{$_} = $value;
-				return 1;
+                return 1;
             }
         }
     }
@@ -66,11 +67,11 @@ sub parse_opts {
     foreach (q(allow_nulls)) {
         last unless exists $opt{$_};
         my $value = delete $opt{$_};
-        if ( $value ~~ [qw[0 1]] ) {
+        if ( $value == 0 || $value == 1 ) {
             $self->opts->{$_} = $value;
         }
         else {
-            my $msg = qq(invalid value for '--$_': '$opt{$_}');
+            my $msg = qq(invalid value for '--$_': '$value');
             push @{ $self->errors() }, $msg;
         }
     }
@@ -82,8 +83,9 @@ sub parse_opts {
                 $self->opts->{$_} = $value;
             }
             else {
-                my $msg = qq(invalid value for '--$_': '$opt{$_}' );
+                my $msg = qq(invalid value for '--$_': '$value' );
                 push @{ $self->errors() }, $msg;
+                return 0;
             }
         }
         else {
@@ -96,11 +98,12 @@ sub parse_opts {
     foreach (q(input)) {
         if ( exists $opt{$_} ) {
             my $value = delete $opt{$_};
-            if ( -e -f $value ) {
+            if ( $value eq q(-) ) { $self->opts->{$_} = \*STDIN; }
+            elsif ( -e $value && -r $value && -f $value && -s $value ) {
                 $self->opts->{$_} = $value;
             }
             else {
-                my $msg = qq($opt{$_} isn't accessible);
+                my $msg = qq($value isn't accessible);
                 push @{ $self->errors() }, $msg;
             }
         }
@@ -115,7 +118,8 @@ sub parse_opts {
     %opt = $self->$parse(%opt);
 
     foreach my $opt ( keys %opt ) {
-        my $msg = qq(unknown option: '$opt');
+        my $msg = sprintf q(option '--%s' is invalid for '--input_type=%s'),
+            $opt, $self->opts->{input_type};
         push @{ $self->errors() }, $msg;
     }
 
@@ -148,28 +152,68 @@ sub _parse_opts_dsv {
 
     foreach (q(record_separator)) {
         last unless exists $opt{$_};
-        my %map = (
-            q(\n)    => qq(\n),
-            q(\r)    => qq(\r),
-            q(\r\n)  => qq(\r\n),
-            qq(\n)   => qq(\n),
-            qq(\r)   => qq(\r),
-            qq(\r\n) => qq(\r\n),
-        );
         my $value = delete $opt{$_};
-        if ( exists $map{$value} ) {
-            $value = $map{$value};
-            $self->opts->{$_} = $value;
-        }
-    } ## end foreach (q(record_separator))
+        $value = $self->_parse_record_separator($value);
+        $self->opts->{$_} = $value if defined $value;
+    }
 
     return %opt;
 } ## end sub _parse_opts_dsv
 
-sub _parse_opts_fixedwidth {...}
-sub _parse_opts_html       {...}
-sub _parse_opts_latex      {...}
-sub _parse_opts_texinfo    {...}
+sub _parse_opts_fixedwidth {
+    my $self = shift;
+    my %opt  = splice @_;
+
+    foreach (q(field_offset)) {
+        if ( exists $opt{$_} ) {
+            my $values = delete $opt{$_};
+            my @value;
+            foreach my $value ( @{$values} ) {
+                push @value, split m{[\s,]+}msx, $value;
+            }
+            @value = grep { defined && $_ ne q() } @value;
+            $self->opts->{$_} = [@value];
+        }
+        else {
+            my $msg = qq('--$_' is mandatory for '--input_type=fixedwidth');
+            push @{ $self->errors() }, $msg;
+        }
+    } ## end foreach (q(field_offset))
+
+    foreach (q(record_separator)) {
+        last unless exists $opt{$_};
+        my $value = delete $opt{$_};
+        $value = $self->_parse_record_separator($value);
+        $self->opts->{$_} = $value if defined $value;
+    }
+
+    return %opt;
+} ## end sub _parse_opts_fixedwidth
+
+sub _parse_opts_html    {...}
+sub _parse_opts_latex   {...}
+sub _parse_opts_texinfo {...}
+
+sub _parse_record_separator {
+    my $self             = shift;
+    my $record_separator = shift;
+
+    return unless defined $record_separator;
+
+    my %map = (
+        q(\n)    => qq(\n),
+        q(\r)    => qq(\r),
+        q(\r\n)  => qq(\r\n),
+        qq(\n)   => qq(\n),
+        qq(\r)   => qq(\r),
+        qq(\r\n) => qq(\r\n),
+    );
+
+    $record_separator
+        = exists $map{$record_separator} ? $map{$record_separator} : ();
+
+    return $record_separator;
+} ## end sub _parse_record_separator
 
 sub table2yaml {
     my $self = shift;
@@ -197,7 +241,7 @@ App::Table2YAML::CLI - Command Line Interface functions.
 
 =head1 VERSION
 
-version 0.001
+version 0.002
 
 =head1 DESCRIPTION
 

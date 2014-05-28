@@ -5,7 +5,7 @@ use charnames q(:full);
 use English qw[-no_match_vars];
 use Moo::Role;
 
-our $VERSION = '0.001'; # VERSION
+our $VERSION = '0.002'; # VERSION
 
 sub load_texinfo {...}
 
@@ -26,7 +26,7 @@ App::Table2YAML::Loader::Texinfo - Plugin for I<Texinfo> tables.
 
 =head1 VERSION
 
-version 0.001
+version 0.002
 
 =head1 METHODS
 

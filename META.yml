@@ -15,9 +15,9 @@ build_requires:
   strict: '0'
 configure_requires:
   ExtUtils::MakeMaker: '6.30'
-  File::ShareDir::Install: '0.03'
+  File::ShareDir::Install: '0.06'
 dynamic_config: 0
-generated_by: 'Dist::Zilla version 5.015, CPAN::Meta::Converter version 2.140640'
+generated_by: 'Dist::Zilla version 5.019, CPAN::Meta::Converter version 2.141170'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -28,15 +28,19 @@ requires:
   English: '0'
   Getopt::Long: '0'
   IO::File: '0'
+  List::Util: '0'
   Moo: '0'
   Moo::Role: '0'
   Pod::Find: '0'
   Pod::Usage: '0'
   Scalar::Util: '0'
   Text::CSV_XS: '0'
+  Unicode::CaseFold: '0'
   autodie: '0'
   charnames: '0'
   common::sense: '0'
   perl: '5.012'
   warnings: '0'
-version: '0.001'
+resources:
+  repository: https://github.com/jimmytty/App-Table2YAML.git
+version: '0.002'

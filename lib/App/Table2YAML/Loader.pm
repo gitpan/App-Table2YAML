@@ -4,6 +4,7 @@ use common::sense;
 use charnames q(:full);
 use Carp;
 use English qw[-no_match_vars];
+use List::Util qw[first];
 use Moo;
 with qw[
     App::Table2YAML::Loader::AsciiTable
@@ -14,11 +15,11 @@ with qw[
     App::Table2YAML::Loader::Texinfo
 ];
 
-our $VERSION = '0.001'; # VERSION
+our $VERSION = '0.002'; # VERSION
 
 has input => (
     is  => q(rw),
-    isa => sub { @_ == 1 && -e $_[0] && -s $_[0] },
+    isa => sub { -e $_[0] && -r $_[0] && -f $_[0] && -s $_[0] },
 );
 has input_type => ( is => q(rw), default => q(), );
 has field_separator => (
@@ -28,13 +29,18 @@ has field_separator => (
 has record_separator => (
     is  => q(rw),
     isa => sub {
-        @_ == 1 && $_[0] ~~ [
+        @_ == 1 && first { $_[0] eq $_ } (
             qq(\N{CARRIAGE RETURN}),
             qq(\N{LINE FEED}),
             qq(\N{CARRIAGE RETURN}\N{LINE FEED}),
-        ];
+        );
     },
     default => qq{\N{LINE FEED}},
+);
+has field_offset => (
+    is      => q(rw),
+    isa     => sub { ref $_[0] eq q(ARRAY); },
+    default => sub { []; },
 );
 
 sub BUILD {
@@ -53,14 +59,14 @@ sub BUILD {
 sub load {
     my $self = shift;
 
-    if ( $self->input_type() ~~ [ undef, q() ] ) {
+    if ( !( defined $self->input_type() ) || $self->input_type() eq q() ) {
         croak(
             sprintf q(invalid input_type: '%s'),
-            $self->input_type() // q(undef)
+            $self->input_type() // q(undef),
         );
     }
 
-    my $loader = q(load_) . fc $self->input_type();
+    my $loader = q(load_) . lc $self->input_type();
     my @table  = $self->$loader();
 
     return @table;
@@ -83,7 +89,7 @@ App::Table2YAML::Loader - Load and parse files.
 
 =head1 VERSION
 
-version 0.001
+version 0.002
 
 =head1 METHODS
 

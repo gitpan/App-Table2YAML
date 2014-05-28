@@ -7,12 +7,16 @@ use IO::File;
 use Moo::Role;
 use Text::CSV_XS;
 
-our $VERSION = '0.001'; # VERSION
+our $VERSION = '0.002'; # VERSION
 
 sub load_dsv {
     my $self = shift;
 
-    my $dsv_fh = IO::File->new( $self->input(), q(r) );
+    my $ref = ref $self->input() // q();
+    my $dsv_fh
+        = $ref eq q(GLOB)
+        ? $self->input()
+        : IO::File->new( $self->input(), q(r) );
     my $csv_obj = Text::CSV_XS->new(
         {   binary         => 1,
             empty_is_undef => 1,
@@ -44,7 +48,7 @@ App::Table2YAML::Loader::DSV - Plugin for I<DSV> files.
 
 =head1 VERSION
 
-version 0.001
+version 0.002
 
 =head1 METHODS
 

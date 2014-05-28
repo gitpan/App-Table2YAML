@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-# this test was generated with Dist::Zilla::Plugin::NoTabsTests 0.06
+# this test was generated with Dist::Zilla::Plugin::Test::NoTabs 0.08
 
 use Test::More 0.88;
 use Test::NoTabs;
@@ -17,7 +17,9 @@ my @files = (
     'lib/App/Table2YAML/Loader/HTML.pm',
     'lib/App/Table2YAML/Loader/LaTeX.pm',
     'lib/App/Table2YAML/Loader/Texinfo.pm',
-    'lib/App/Table2YAML/Serializer.pm'
+    'lib/App/Table2YAML/Serializer.pm',
+    't/00-compile.t',
+    't/app-table2yaml.t'
 );
 
 notabs_ok($_) foreach @files;

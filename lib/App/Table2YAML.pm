@@ -2,12 +2,13 @@ package App::Table2YAML;
 
 use common::sense;
 use charnames q(:full);
+use Carp;
 use English qw[-no_match_vars];
 use Moo;
 use App::Table2YAML::Loader;
 use App::Table2YAML::Serializer;
 
-our $VERSION = '0.001'; # VERSION
+our $VERSION = '0.002'; # VERSION
 
 has loader => (
     is      => q(rw),
@@ -30,7 +31,6 @@ sub BUILD {
             }
         }
     }
-    croak(q(unparsed args)) if %{$args};
 
     return 1;
 } ## end sub BUILD
@@ -64,7 +64,7 @@ App::Table2YAML - Convert the semantic of visual tables to I<YAML>.
 
 =head1 VERSION
 
-version 0.001
+version 0.002
 
 =head1 SYNOPSIS
 
