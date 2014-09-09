@@ -6,7 +6,7 @@ use English qw[-no_match_vars];
 use IO::File;
 use Moo::Role;
 
-our $VERSION = '0.002'; # VERSION
+our $VERSION = '0.003'; # VERSION
 
 sub load_fixedwidth {
     my $self = shift;
@@ -51,7 +51,7 @@ App::Table2YAML::Loader::FixedWidth - Plugin for I<Fixed-Width> files.
 
 =head1 VERSION
 
-version 0.002
+version 0.003
 
 =head1 METHODS
 

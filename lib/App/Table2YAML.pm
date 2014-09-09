@@ -8,7 +8,7 @@ use Moo;
 use App::Table2YAML::Loader;
 use App::Table2YAML::Serializer;
 
-our $VERSION = '0.002'; # VERSION
+our $VERSION = '0.003'; # VERSION
 
 has loader => (
     is      => q(rw),
@@ -60,11 +60,11 @@ __END__
 
 =head1 NAME
 
-App::Table2YAML - Convert the semantic of visual tables to I<YAML>.
+App::Table2YAML - Convert the semantic of visual tables into YAML.
 
 =head1 VERSION
 
-version 0.002
+version 0.003
 
 =head1 SYNOPSIS
 

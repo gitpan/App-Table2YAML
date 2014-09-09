@@ -15,7 +15,7 @@ with qw[
     App::Table2YAML::Loader::Texinfo
 ];
 
-our $VERSION = '0.002'; # VERSION
+our $VERSION = '0.003'; # VERSION
 
 has input => (
     is  => q(rw),
@@ -89,7 +89,7 @@ App::Table2YAML::Loader - Load and parse files.
 
 =head1 VERSION
 
-version 0.002
+version 0.003
 
 =head1 METHODS
 
